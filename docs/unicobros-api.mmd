@@ -1,0 +1,96 @@
+---
+config:
+  theme: base
+  layout: dagre
+  title: Unicobros API Class Diagram
+  look: neo
+id: 29f5ff4c-2cb1-46b1-8419-a6d229600916
+---
+classDiagram
+    class UnicobrosApplication {
+        <<SpringBootApplication>>
+        +main(String[] args) void
+    }
+    class UnicobrosController {
+        <<RestController>>
+        -PaymentService paymentService
+        +UnicobrosController(PaymentService)
+        +hello() String
+        +createPaymentIntent(PaymentIntentRequest) ResponseEntity~PaymentIntentResponse~
+    }
+    class PaymentService {
+        <<Service>>
+        -Logger logger
+        -UnicobrosConfig config
+        -HttpClient httpClient
+        -ObjectMapper objectMapper
+        +PaymentService(UnicobrosConfig)
+        +createPaymentIntent(PaymentIntentRequest) PaymentIntentResponse
+    }
+    class UnicobrosConfig {
+        <<Configuration>>
+        -String apiKey
+        -String accessToken
+        -String apiUrl
+        +getApiKey() String
+        +getAccessToken() String
+        +getApiUrl() String
+    }
+    class PaymentIntentRequest {
+        <<DTO>>
+        -Double total
+        -String currency
+        -String reference
+        -String description
+        -String returnUrl
+        -String webhook
+        +PaymentIntentRequest()
+        +PaymentIntentRequest(Double, String, String, String, String, String)
+        +getTotal() Double
+        +setTotal(Double) void
+        +getCurrency() String
+        +setCurrency(String) void
+        +getReference() String
+        +setReference(String) void
+        +getDescription() String
+        +setDescription(String) void
+        +getReturnUrl() String
+        +setReturnUrl(String) void
+        +getWebhook() String
+        +setWebhook(String) void
+    }
+    class PaymentIntentResponse {
+        <<DTO>>
+        -int statusCode
+        -String body
+        -boolean success
+        -String message
+        +PaymentIntentResponse()
+        +PaymentIntentResponse(int, String, boolean, String)
+        +getStatusCode() int
+        +setStatusCode(int) void
+        +getBody() String
+        +setBody(String) void
+        +isSuccess() boolean
+        +setSuccess(boolean) void
+        +getMessage() String
+        +setMessage(String) void
+    }
+    class HttpClient {
+        <<Java HTTP Client>>
+    }
+    class ObjectMapper {
+        <<Jackson>>
+    }
+    UnicobrosApplication ..> UnicobrosController : starts
+    UnicobrosController --> PaymentService : uses
+    UnicobrosController ..> PaymentIntentRequest : receives
+    UnicobrosController ..> PaymentIntentResponse : returns
+    PaymentService --> UnicobrosConfig : uses
+    PaymentService --> HttpClient : uses
+    PaymentService --> ObjectMapper : uses
+    PaymentService ..> PaymentIntentRequest : processes
+    PaymentService ..> PaymentIntentResponse : creates
+    note for UnicobrosController "REST endpoint at\n/api/unicobros/payment"
+    note for PaymentService "Handles HTTP/2 requests\nto Unicobros API"
+    note for UnicobrosConfig "Configuration from\napplication.properties"
